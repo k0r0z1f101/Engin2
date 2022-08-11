@@ -9,11 +9,12 @@ public class Run : PhysicMovement, ICharacterState
         base.Awake();
         base._groundSpeed = 15;
         base._maxGroundSpeed = 15;
-        base._forceMode = ForceMode.Acceleration;
+        base._forceMode = ForceMode.Force;
     }
-    public void StateHandle(PlayerController pc)
+    public bool StateHandle(PlayerController pc)
     {
         Vector3 dir = new Vector3(pc.inputMoveDirection.x, 0, pc.inputMoveDirection.y);
         base.Move(dir);
+        return true;
     }
 }

@@ -13,14 +13,14 @@ public class PlayerController : MonoBehaviour, PlayerInputs.IPlayerActionsAction
     };
 
     [SerializeField] private List<State> _activeStates = new List<State>();
-    private ICharacterState walk, run;
+    private ICharacterState walk, run, grounded, jump;
     
     private PlayerInputs pInputs;
 
-    delegate void PlayerMoveState(PlayerController pc);
+    delegate bool PlayerMoveState(PlayerController pc);
 
     private PlayerMoveState _playerMoveState;
-    [System.NonSerialized] public Vector3 inputMoveDirection;
+    [System.NonSerialized] public Vector2 inputMoveDirection;
 
     private void Awake()
     {
@@ -33,6 +33,8 @@ public class PlayerController : MonoBehaviour, PlayerInputs.IPlayerActionsAction
     {
         walk = gameObject.AddComponent<Walk>();
         run = gameObject.AddComponent<Run>();
+        grounded = gameObject.AddComponent<Grounded>();
+        jump = gameObject.AddComponent<Jump>();
     }
 
     private void AddMoveState(ICharacterState state, State newState)
@@ -68,34 +70,55 @@ public class PlayerController : MonoBehaviour, PlayerInputs.IPlayerActionsAction
         inputMoveDirection = value.ReadValue<Vector2>();
         if (value.started)
         {
-            AddMoveState(walk, State.Walking);
+            if (!_activeStates.Contains(State.Running))
+            {
+                AddMoveState(walk, State.Walking);
+            }
         }
 
         if (value.canceled)
         {
-            RemoveMoveState(walk, State.Walking);
+            inputMoveDirection = Vector2.zero;
+            if (_activeStates.Contains(State.Walking))
+            {
+                RemoveMoveState(walk, State.Walking);
+            }
         }
     }
     
     public void OnRun(InputAction.CallbackContext value)
     {
-        if (_activeStates.Contains(State.Walking))
-        {
             print("run");
             if (value.started)
             {
                 AddMoveState(run, State.Running);
+                if (_activeStates.Contains(State.Walking))
+                {
+                    RemoveMoveState(run, State.Walking);
+                }
             }
 
             if (value.canceled)
             {
                 RemoveMoveState(run, State.Running);
+                if (inputMoveDirection != Vector2.zero)
+                {
+                    AddMoveState(walk, State.Walking);
+                }
             }
-        }
     }
     
     public void OnJump(InputAction.CallbackContext value)
     {
-        print("jump");
+        print(OnIsGrounded());
+        if (value.started && OnIsGrounded())
+        {
+            jump.StateHandle(this);
+        }
+    }
+
+    private bool OnIsGrounded()
+    {
+        return grounded.StateHandle(this);
     }
 }

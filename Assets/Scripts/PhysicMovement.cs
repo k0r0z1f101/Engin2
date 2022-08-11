@@ -18,9 +18,10 @@ public class PhysicMovement : MonoBehaviour
 
     protected void Move(Vector3 dir)
     {
-        if (_rigidbody.velocity.magnitude < _maxGroundSpeed)
-        {
-            _rigidbody.AddForce(dir * _groundSpeed, _forceMode);
-        }
+        // if (_rigidbody.velocity.magnitude < _maxGroundSpeed)
+        // {
+        //     _rigidbody.AddForce(dir * _groundSpeed, _forceMode);
+        // }
+        _rigidbody.AddForce(dir * _groundSpeed, _forceMode);
     }
 }

@@ -4,5 +4,5 @@ using UnityEngine;
 
 interface ICharacterState
 {
-    void StateHandle(PlayerController pc);
+    public bool StateHandle(PlayerController pc);
 }
